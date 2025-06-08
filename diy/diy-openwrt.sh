@@ -53,9 +53,6 @@ sed -i 's/services/nas/g' feeds/luci/applications/luci-app-hd-idle/root/usr/shar
 sed -i 's/msgstr "FileBrowser"/msgstr "文件浏览器"/g' feeds/istoreos_ipk/op-fileBrowser/luci-app-filebrowser/po/zh_Hans/filebrowser.po
 sed -i 's/services/nas/g' feeds/istoreos_ipk/op-fileBrowser/luci-app-filebrowser/root/usr/share/luci/menu.d/luci-app-filebrowser.json
 
-# 修改socat为端口转发
-sed -i 's/msgstr "Socat"/msgstr "端口转发"/g' feeds/third_party/luci-app-socat/po/zh-cn/socat.po
-
 ##加入作者信息
 sed -i "s/DISTRIB_DESCRIPTION='*.*'/DISTRIB_DESCRIPTION='OpenWrt-$(date +%Y%m%d)'/g"  package/base-files/files/etc/openwrt_release
 sed -i "s/DISTRIB_REVISION='*.*'/DISTRIB_REVISION=' By JayKwok'/g" package/base-files/files/etc/openwrt_release
@@ -150,11 +147,17 @@ function merge_package() {
 }
 
 
-git_sparse_clone main https://github.com/Jaykwok2999/socat luci-app-socat
-git_sparse_clone main https://github.com/Jaykwok2999/socat socat
-git_sparse_clone main https://github.com/Jaykwok2999/istoreos-theme luci-app-argon-config
 git_sparse_clone main https://github.com/Jaykwok2999/istoreos-ota luci-app-ota
 git_sparse_clone main https://github.com/Jaykwok2999/istoreos-ota fw_download_tool
+git_sparse_clone main https://github.com/Jaykwok2999/luci-app-passwall luci-app-passwall
+git_sparse_clone main https://github.com/kiddin9/kwrt-packages luci-app-mosdns
+git_sparse_clone main https://github.com/kiddin9/kwrt-packages mosdns
+git_sparse_clone main https://github.com/Jaykwok2999/socat luci-app-socat
+git_sparse_clone main https://github.com/kiddin9/kwrt-packages luci-app-upnp
+git_sparse_clone main https://github.com/kiddin9/kwrt-packages miniupnpd
+rm -rf feeds/small/ luci-app-OpenClash
+rm -rf feeds/istoreos_ipk/patch/wall-luci/luci-app-OpenClash
+git_sparse_clone dev https://github.com/vernesong/OpenClash luci-app-OpenClash
 
 # golong1.24.2依赖
 rm -rf feeds/packages/lang/golang
@@ -167,6 +170,18 @@ rm -rf feeds/istoreos_ipk/patch/wall-luci/luci-app-passwall
 # 锐捷认证
 # git clone https://github.com/sbwml/luci-app-mentohust package/mentohust
 
+# Adguardhome
+# git_sparse_clone master https://github.com/kenzok8/openwrt-packages adguardhome luci-app-adguardhome
+
+# default-settings
+# git clone --depth=1 -b dev https://github.com/Jaykwok2999/default-settings package/default-settings
+
+# UPnP
+rm -rf feeds/{packages/net/miniupnpd,luci/applications/luci-app-upnp}
+
+# Lucky
+# git clone https://github.com/gdy666/luci-app-lucky.git package/lucky
+
 # unzip
 rm -rf feeds/packages/utils/unzip
 git clone https://github.com/sbwml/feeds_packages_utils_unzip feeds/packages/utils/unzip
@@ -176,11 +191,10 @@ sed -i 's,发送,Transmission,g' feeds/luci/applications/luci-app-transmission/p
 sed -i 's,frp 服务器,frps 服务器,g' feeds/luci/applications/luci-app-frps/po/zh_Hans/frps.po
 sed -i 's,frp 客户端,frpc 客户端,g' feeds/luci/applications/luci-app-frpc/po/zh_Hans/frpc.po
 
-## 必要的补丁
+# 必要的补丁
 pushd feeds/luci
    curl -s https://raw.githubusercontent.com/oppen321/path/refs/heads/main/Firewall/0001-luci-mod-status-firewall-disable-legacy-firewall-rul.patch | patch -p1
 popd
-
 pushd
    curl -sSL https://raw.githubusercontent.com/Jaykwok2999/turboacc/luci/add_turboacc.sh -o add_turboacc.sh && bash add_turboacc.sh
 popd
@@ -197,8 +211,6 @@ cp -af feeds/istoreos_ipk/patch/diy/OpenWrt/1/banner package/base-files/files/et
 
 # tailscale
 rm -rf feeds/packages/net/tailscale
-# rm -rf feeds/istoreos_ipk/tailscale/tailscale
-# cp -af feeds/istoreos_ipk/tailscale/tailscale  feeds/packages/net/
 sed -i '/\/etc\/init\.d\/tailscale/d;/\/etc\/config\/tailscale/d;' feeds/packages/net/tailscale/Makefile
 
 # 增加驱动补丁
