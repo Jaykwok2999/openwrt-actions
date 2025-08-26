@@ -1,8 +1,8 @@
 {
     "x86_64": [
         {
-            "build_date": "1756185173",
-            "sha256sum": "5b45ca1e14835054b51f445a058585052e90d470d156fbf98e68047e7f9fab98",
+            "build_date": "1756210567",
+            "sha256sum": "45b418c9db11094d721cf15046e11a1a2ccc9d771ab173c8cb629cc3ef90032e",
             "url": "https://pro.sos07.eu.org/https://github.com/Jaykwok2999/openwrt-actions/releases/download/OpenWrt20250826/openwrt-x86-64-generic-squashfs-combined-efi.img.gz"
         }
     ]
