@@ -1,18 +1,14 @@
-name: Builser-OpenWrt-X86_64
+name: Builser-OpenWrt-24.10.2-X86_64
 
-on: 
+on:
   repository_dispatch:
   workflow_dispatch:
-
-# 定时触发编译
-#  schedule:
-#    - cron: 0 22 * * *
 
 env:
   REPO_URL: https://github.com/openwrt/openwrt.git
   REPO_BRANCH: openwrt-24.10
-  CONFIG_FILE: configs/x86_64-openwrt.config
-  DIY_SCRIPT: diy/diy-openwrt.sh
+  CONFIG_FILE: configs/x86_64_OpenWrt.config
+  DIY_SCRIPT: diy/diy-OpenWrt.sh
   CLASH_KERNEL: amd64
   CACHE_TOOLCHAIN: true
   UPLOAD_BIN_DIR: false
@@ -24,7 +20,7 @@ jobs:
     runs-on: ubuntu-22.04
 
     steps:
-    - name: Check Server Performance
+    - name: 检查服务器性能
       run: |
         echo "警告⚠"
         echo "分配的服务器性能有限，若选择的插件过多，务必注意CPU性能！"
@@ -39,41 +35,38 @@ jobs:
         echo "--------------------------硬盘信息--------------------------"
         echo "硬盘数量: $(ls /dev/sd* | grep -v [1-9] | wc -l)" && df -hT
 
-    - name: Initialization Environment
+    - name: 初始化环境
       env:
         DEBIAN_FRONTEND: noninteractive
       run: |
-        docker rmi $(docker images -q)
-        sudo rm -rf /usr/share/dotnet /etc/apt/sources.list.d /usr/local/lib/android $AGENT_TOOLSDIRECTORY
-        sudo -E apt-get -y purge azure-cli ghc* zulu* llvm* firefox google* dotnet* powershell openjdk* mongodb* moby* || true
-        sudo -E apt-get -y update
-        sudo -E apt-get -y install $(curl -fsSL https://git.kejizero.online/zhao/files/raw/branch/main/Rely/ubuntu2204)
-        sudo -E systemctl daemon-reload
-        sudo -E apt-get -y autoremove --purge
-        sudo -E apt-get -y clean
-        sudo -E apt-get install -y clang
-        sudo timedatectl set-timezone "$TZ"
+        sudo timedatectl set-timezone "Asia/Shanghai"
+        sudo -E apt-get update -y
+        sudo -E apt-get install -y ack antlr3 asciidoc autoconf automake autopoint binutils bison build-essential bzip2 ccache cmake cpio curl device-tree-compiler fastjar flex gawk gettext gcc-multilib g++-multilib git gperf haveged help2man intltool libc6-dev-i386 libelf-dev libglib2.0-dev libgmp3-dev libltdl-dev libmpc-dev libmpfr-dev libncurses5-dev libncursesw5-dev libreadline-dev libssl-dev libtool lrzsz mkisofs msmtp nano ninja-build p7zip p7zip-full patch pkgconf python3 python3-pyelftools libpython3-dev qemu-utils rsync scons squashfs-tools subversion swig texinfo uglifyjs upx-ucl unzip vim wget xmlto xxd zlib1g-dev libfuse-dev python3-setuptools g++ file clang nano genisoimage
+        pip install aligo
+        sudo -E apt-get clean
+        git config --global user.name 'GitHub Actions' && git config --global user.email 'noreply@github.com'
+        df -h
 
-    - name: Combine Disks
+    - name: 合并磁盘
       uses: easimon/maximize-build-space@master
       with:
         swap-size-mb: 1024
         temp-reserve-mb: 100
         root-reserve-mb: 1024
 
-    - name: Checkout
+    - name: 结续
       uses: actions/checkout@main
 
-    - name: Clone Source Code
+    - name: 克隆源代码
       run: |
         df -hT $GITHUB_WORKSPACE
         git clone $REPO_URL -b $REPO_BRANCH openwrt
         cd openwrt
         echo "DATE=$(date +'%Y-%m-%d %H:%M:%S')" >> $GITHUB_ENV
-        echo $(date +"%Y%m%d%M") > version
+        echo $(date +"%Y%m%d%H") > version
         echo "OPENWRT_PATH=$PWD" >> $GITHUB_ENV
 
-    - name: Generate Variables
+    - name: 生成变量
       run: |
         cp $CONFIG_FILE $OPENWRT_PATH/.config
         cd $OPENWRT_PATH
@@ -84,9 +77,9 @@ jobs:
         echo "DEVICE_TARGET=$DEVICE_TARGET" >> $GITHUB_ENV
         DEVICE_SUBTARGET=$(cat .config | grep CONFIG_TARGET_SUBTARGET | awk -F '"' '{print $2}')
         echo "DEVICE_SUBTARGET=$DEVICE_SUBTARGET" >> $GITHUB_ENV
-        echo "FIRMWARE_TAG=$(date +"%Y%m%d")" >> $GITHUB_ENV
+        echo "FIRMWARE_TAG=OpenWrt$(date +"%Y%m%d")" >> $GITHUB_ENV
 
-    - name: Cache Toolchain
+    - name: 缓存工具链
       if: env.CACHE_TOOLCHAIN == 'true'
       uses: HiGarfield/cachewrtbuild@main
       with:
@@ -94,20 +87,19 @@ jobs:
         mixkey: ${{ env.SOURCE_REPO }}-${{ env.REPO_BRANCH }}-${{ env.DEVICE_TARGET }}-${{ env.FIRMWARE_TAG }}-${{ env.DEVICE_SUBTARGET }}
         prefix: ${{ env.OPENWRT_PATH }}
 
-    - name: Install Feeds
+    - name: 安装feeds
       run: |
         cd $OPENWRT_PATH
         sed -i "1isrc-git diskman https://github.com/jjm2473/luci-app-diskman.git;dev\n" feeds.conf.default
         sed -i "2isrc-git third_party https://github.com/linkease/istore-packages.git;main\n" feeds.conf.default
         sed -i "3isrc-git jjm2473_apps https://github.com/jjm2473/openwrt-apps.git;main\n" feeds.conf.default        
         sed -i "4isrc-git istoreos_ipk https://github.com/Jaykwok2999/istoreos-ipk.git;main\n" feeds.conf.default        
-        sed -i "5isrc-git theme https://github.com/Jaykwok2999/istoreos-theme.git;main\n" feeds.conf.default        
-        sed -i "6isrc-git turboacc https://github.com/chenmozhijin/turboacc.git;luci\n" feeds.conf.default        
-        sed -i "7isrc-git socat https://github.com/Jaykwok2999/socat.git;main\n" feeds.conf.default           
+        sed -i "5isrc-git turboacc https://github.com/chenmozhijin/turboacc.git;luci\n" feeds.conf.default        
+        sed -i "6isrc-git socat https://github.com/Jaykwok2999/socat.git;main\n" feeds.conf.default        
         ./scripts/feeds update -a
         ./scripts/feeds install -a
 
-    - name: Load Custom Configuration
+    - name: 加载自定义配置
       run: |
         [ -e files ] && mv files $OPENWRT_PATH/files
         [ -e $CONFIG_FILE ] && mv $CONFIG_FILE $OPENWRT_PATH/.config
@@ -117,7 +109,7 @@ jobs:
         $GITHUB_WORKSPACE/$DIY_SCRIPT
         $GITHUB_WORKSPACE/scripts/preset-clash-core.sh $CLASH_KERNEL
 
-    - name: Download DL Package
+    - name: 下载软件包
       run: |
         cd $OPENWRT_PATH
         make defconfig
@@ -125,7 +117,7 @@ jobs:
         find dl -size -1024c -exec ls -l {} \;
         find dl -size -1024c -exec rm -f {} \;
 
-    - name: Compile Firmware
+    - name: 编译固件
       id: compile
       run: |
         cd $OPENWRT_PATH
@@ -134,18 +126,18 @@ jobs:
         echo "status=success" >> $GITHUB_OUTPUT
         echo "FILE_DATE=$(date +"%Y.%m.%d")" >> $GITHUB_ENV
 
-    - name: Check Space Usage
+    - name: 检查空间使用情况
       if: (!cancelled())
       run: df -hT
 
-    - name: Upload Bin Directory
+    - name: 上传文件夹目录
       if: steps.compile.outputs.status == 'success' && env.UPLOAD_BIN_DIR == 'true'
       uses: actions/upload-artifact@main
       with:
-        name: ${{ env.SOURCE_REPO }}-bin-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}-${{ env.FILE_DATE }}
+        name: ${{ env.SOURCE_REPO }}-bin-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}-${{ env.FIRMWARE_TAG }}
         path: ${{ env.OPENWRT_PATH }}/bin
 
-    - name: Organize Files
+    - name: 整理文件
       if: steps.compile.outputs.status == 'success'
       run: |
         cd $OPENWRT_PATH/bin/targets/*/*
@@ -153,22 +145,22 @@ jobs:
         cp $OPENWRT_PATH/.config build.config
         mv -f $OPENWRT_PATH/bin/packages/*/*/*.ipk packages
         tar -zcf Packages.tar.gz packages
-        rm -rf packages feeds.buildinfo version.buildinfo
+        rm -rf feeds.buildinfo version.buildinfo build.config openwrt-x86-64.manifest openwrt-x86-64-generic-squashfs-rootfs.img.gz config.buildinfo 
         echo "KERNEL=$(cat *.manifest | grep ^kernel | cut -d- -f2 | tr -d ' ')" >> $GITHUB_ENV
         echo "FIRMWARE_PATH=$PWD" >> $GITHUB_ENV
 
-    - name: Upload Firmware To Artifact
+    - name: 将固件上传到 Artifact
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE != 'true'
       uses: actions/upload-artifact@main
       with:
-        name: ${{ env.SOURCE_REPO }}-firmware-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}-${{ env.FILE_DATE }}
+        name: ${{ env.SOURCE_REPO }}-firmware-${{ env.DEVICE_TARGET }}-${{ env.DEVICE_SUBTARGET }}-${{ env.FIRMWARE_VERSION }}-${{ env.FILE_DATE }}
         path: ${{ env.FIRMWARE_PATH }}
 
-    - name: Upload Firmware To Release
+    - name: 上传固件以发布Release
       if: steps.compile.outputs.status == 'success' && env.FIRMWARE_RELEASE == 'true'
       uses: ncipollo/release-action@v1
       with:
-        name: R${{ env.DATE }} for ${{ env.FIRMWARE_TAG }}
+        name: OpenWrt-24.10 for ${{ env.DATE }}
         allowUpdates: true
         tag: ${{ env.FIRMWARE_TAG }}
         token: ${{ secrets.GITHUB_TOKEN }}
@@ -184,19 +176,19 @@ jobs:
           🔒 默认密码: password
 
   generate-ota-json:
-    name: Generate OTA JSON
+    name: 生成OTA升级文件
     needs: build
     runs-on: ubuntu-latest
     permissions:
       contents: write
     
     steps:
-      - name: Checkout main branch
+      - name: 检出主分支
         uses: actions/checkout@v4
         with:
           fetch-depth: 0
 
-      - name: Get latest release info
+      - name: 获取最新发布信息
         id: get_release
         uses: actions/github-script@v7
         with:
@@ -227,28 +219,30 @@ jobs:
 
             const workflowStartTime = workflowRun.data.run_started_at;
             const buildDate = Math.floor(new Date(workflowStartTime).getTime() / 1000);
-
+            
+            // 🔧 在这里添加代理前缀
+            const proxiedUrl = 'https://pro.sos07.eu.org/' + asset.browser_download_url;    
+            
             const json = {
               "x86_64": [
                 {
                   "build_date": String(buildDate),
                   "sha256sum": sha256,
-                  "url": asset.browser_download_url
+                  "url": proxiedUrl  // 使用带代理的URL
                 }
               ]
             };
-
             const fs = require('fs');
             fs.mkdirSync('tmp-api', { recursive: true });
-            fs.writeFileSync('tmp-api/fw.json', JSON.stringify(json, null, 4));
+            fs.writeFileSync('tmp-api/opfw.json', JSON.stringify(json, null, 4));
 
-      - name: Checkout api branch
+      - name: 检出API分支
         run: |
           git fetch origin api:api
           git checkout api
-          cp tmp-api/fw.json .
+          cp tmp-api/opfw.json .
           git config user.name "actions-user"
           git config user.email "actions@github.com"
-          git add fw.json
-          git commit -m "Update fw.json @ $(date +'%Y-%m-%d %H:%M:%S')" || echo "No changes to commit"
+          git add opfw.json
+          git commit -m "Update opfw.json @ $(date +'%Y-%m-%d')" || echo "No changes to commit"
           git push origin api
