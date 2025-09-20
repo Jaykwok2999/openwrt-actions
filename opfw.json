@@ -1,9 +1,9 @@
 {
     "x86_64": [
         {
-            "build_date": "1758300920",
-            "sha256sum": "da1afd4b14b08e8a07e65bc9f4925be49761f3464bced23820960a476ad4e840",
-            "url": "https://pro.sos07.eu.org/https://github.com/Jaykwok2999/openwrt-actions/releases/download/OpenWrt20250920/istoreos-x86-64-generic-squashfs-combined-efi.img.gz"
+            "build_date": "1758387334",
+            "sha256sum": "e6768e97c5841bbfee8f142775dee85a654a0a8107f52be01a3c01d357937c2b",
+            "url": "https://pro.sos07.eu.org/https://github.com/Jaykwok2999/openwrt-actions/releases/download/OpenWrt20250921/istoreos-x86-64-generic-squashfs-combined-efi.img.gz"
         }
     ]
 }
