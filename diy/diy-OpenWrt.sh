@@ -5,14 +5,14 @@ wget -qO- https://raw.githubusercontent.com/Jaykwok2999/istoreos-ipk/refs/heads/
 wget -qO- https://raw.githubusercontent.com/Jaykwok2999/istoreos-ipk/refs/heads/main/patch/diy/mosdns > files/etc/config/mosdns
 # wget -qO- https://raw.githubusercontent.com/Jaykwok2999/istoreos-ipk/refs/heads/main/patch/diy/smartdns > files/etc/config/smartdns
 
-mkdir -p files/etc
-wget -qO- https://raw.githubusercontent.com/Jaykwok2999/openwrt-actions/refs/heads/main/etc/opkg.conf > files/etc/opkg.conf
-mkdir -p files/etc/opkg
-wget -qO- https://raw.githubusercontent.com/Jaykwok2999/openwrt-actions/refs/heads/main/etc/distfeeds.conf > files/etc/opkg/distfeeds.conf-86
-wget -qO- https://raw.githubusercontent.com/Jaykwok2999/openwrt-actions/refs/heads/main/etc/distfeeds.conf > files/etc/opkg/distfeeds.conf
+#mkdir -p files/etc
+#wget -qO- https://raw.githubusercontent.com/Jaykwok2999/openwrt-actions/refs/heads/main/etc/opkg.conf > files/etc/opkg.conf
+#mkdir -p files/etc/opkg
+#wget -qO- https://raw.githubusercontent.com/Jaykwok2999/openwrt-actions/refs/heads/main/etc/distfeeds.conf > files/etc/opkg/distfeeds.conf-86
+#wget -qO- https://raw.githubusercontent.com/Jaykwok2999/openwrt-actions/refs/heads/main/etc/distfeeds.conf > files/etc/opkg/distfeeds.conf
 
-mkdir -p files/root
-wget -qO- https://raw.githubusercontent.com/Jaykwok2999/istoreos-actions/refs/heads/main/etc/.profile > files/root/.profile
+#mkdir -p files/root
+#wget -qO- https://raw.githubusercontent.com/Jaykwok2999/istoreos-actions/refs/heads/main/etc/.profile > files/root/.profile
 
 # 更改时间戳
 rm -rf scripts/get_source_date_epoch.sh
@@ -154,8 +154,8 @@ cp -af feeds/istoreos_ipk/patch/un.svg package/luci-app-passwall/root/www/luci-s
 rm -rf feeds/packages/lang/golang
 git clone https://github.com/sbwml/packages_lang_golang -b 24.x feeds/packages/lang/golang
 
-rm -rf package/feeds/packages/rust
-git_sparse_clone openwrt-24.10 https://github.com/immortalwrt/packages lang/rust
+#rm -rf package/feeds/packages/rust
+#git_sparse_clone openwrt-24.10 https://github.com/immortalwrt/packages lang/rust
 
 #rm -rf package/feeds/packages/node
 #git_sparse_clone openwrt-24.10 https://github.com/immortalwrt/packages lang/node
